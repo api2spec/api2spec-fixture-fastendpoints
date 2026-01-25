@@ -1,9 +1,24 @@
 using FastEndpoints;
+using FluentValidation;
 
 namespace Api.Endpoints.Posts;
 
 public record Post(int Id, int UserId, string Title, string Body);
 public record PostRequest { public int UserId { get; set; } public string Title { get; set; } = ""; public string Body { get; set; } = ""; }
+
+public class PostRequestValidator : Validator<PostRequest>
+{
+    public PostRequestValidator()
+    {
+        RuleFor(x => x.UserId)
+            .GreaterThan(0).WithMessage("UserId must be greater than 0");
+        RuleFor(x => x.Title)
+            .NotEmpty().WithMessage("Title is required")
+            .MinimumLength(3).WithMessage("Title must be at least 3 characters");
+        RuleFor(x => x.Body)
+            .NotEmpty().WithMessage("Body is required");
+    }
+}
 
 public class ListPostsEndpoint : EndpointWithoutRequest<List<Post>>
 {
@@ -23,6 +38,11 @@ public class GetPostEndpoint : EndpointWithoutRequest<Post>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var id = Route<int>("id");
+        if (id == 999)
+        {
+            await SendNotFoundAsync();
+            return;
+        }
         await SendAsync(new Post(id, 1, "Sample Post", "Post body"));
     }
 }
@@ -42,6 +62,11 @@ public class UserPostsEndpoint : EndpointWithoutRequest<List<Post>>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var userId = Route<int>("userId");
+        if (userId == 999)
+        {
+            await SendNotFoundAsync();
+            return;
+        }
         await SendAsync(new List<Post> { new(1, userId, "User Post", "Content") });
     }
 }

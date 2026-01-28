@@ -1,10 +1,40 @@
+# Build outputs
 bin/
 obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# Visual Studio
 .vs/
 *.user
+*.userosscache
 *.suo
+*.sln.iml
+
+# JetBrains Rider
 .idea/
 *.DotSettings.user
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+*.snupkg
+project.lock.json
+
+# Environment and secrets
+.env
+appsettings.*.json
+!appsettings.json
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
 
 # Claude Code
 .claude/

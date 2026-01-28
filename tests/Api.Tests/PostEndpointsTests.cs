@@ -1,29 +1,21 @@
 using System.Net;
 using System.Net.Http.Json;
+using FastEndpoints.Testing;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Api.Tests;
 
-[Collection("Api")]
-public class PostEndpointsTests
+public class PostEndpointsTests(ApiTestFixture fixture, ITestOutputHelper output) : TestClass<ApiTestFixture>(fixture, output)
 {
-    private readonly ApiWebApplicationFactory _factory;
-
-    public PostEndpointsTests(ApiWebApplicationFactory factory)
-    {
-        _factory = factory;
-    }
-
-    private HttpClient CreateClient() => _factory.CreateClient();
-
     #region GET /posts
 
     [Fact]
     public async Task ListPosts_ReturnsOkWithPostList()
     {
         // Act
-        var response = await CreateClient().GetAsync("/posts");
+        var response = await Fixture.Client.GetAsync("/posts");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -42,7 +34,7 @@ public class PostEndpointsTests
     public async Task GetPost_WhenPostExists_ReturnsOkWithPost()
     {
         // Act
-        var response = await CreateClient().GetAsync("/posts/1");
+        var response = await Fixture.Client.GetAsync("/posts/1");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -57,7 +49,7 @@ public class PostEndpointsTests
     public async Task GetPost_WhenPostNotFound_Returns404()
     {
         // Act
-        var response = await CreateClient().GetAsync("/posts/999");
+        var response = await Fixture.Client.GetAsync("/posts/999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -74,7 +66,7 @@ public class PostEndpointsTests
         var newPost = new { UserId = 1, Title = "New Post", Body = "Post content" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/posts", newPost);
+        var response = await Fixture.Client.PostAsJsonAsync("/posts", newPost);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -93,7 +85,7 @@ public class PostEndpointsTests
         var invalidPost = new { UserId = 1, Title = "", Body = "Some content" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/posts", invalidPost);
+        var response = await Fixture.Client.PostAsJsonAsync("/posts", invalidPost);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -106,7 +98,7 @@ public class PostEndpointsTests
         var invalidPost = new { UserId = 1, Title = "AB", Body = "Some content" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/posts", invalidPost);
+        var response = await Fixture.Client.PostAsJsonAsync("/posts", invalidPost);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -119,7 +111,7 @@ public class PostEndpointsTests
         var invalidPost = new { UserId = 1, Title = "Valid Title", Body = "" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/posts", invalidPost);
+        var response = await Fixture.Client.PostAsJsonAsync("/posts", invalidPost);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -132,7 +124,7 @@ public class PostEndpointsTests
         var invalidPost = new { UserId = 0, Title = "Valid Title", Body = "Valid body" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/posts", invalidPost);
+        var response = await Fixture.Client.PostAsJsonAsync("/posts", invalidPost);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -145,7 +137,7 @@ public class PostEndpointsTests
         var invalidPost = new { UserId = -1, Title = "Valid Title", Body = "Valid body" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/posts", invalidPost);
+        var response = await Fixture.Client.PostAsJsonAsync("/posts", invalidPost);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -159,7 +151,7 @@ public class PostEndpointsTests
     public async Task GetUserPosts_WhenUserExists_ReturnsOkWithPosts()
     {
         // Act
-        var response = await CreateClient().GetAsync("/users/1/posts");
+        var response = await Fixture.Client.GetAsync("/users/1/posts");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -174,7 +166,7 @@ public class PostEndpointsTests
     public async Task GetUserPosts_WhenUserNotFound_Returns404()
     {
         // Act
-        var response = await CreateClient().GetAsync("/users/999/posts");
+        var response = await Fixture.Client.GetAsync("/users/999/posts");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

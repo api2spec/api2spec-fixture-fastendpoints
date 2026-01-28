@@ -1,27 +1,19 @@
 using System.Net;
 using System.Net.Http.Json;
+using FastEndpoints.Testing;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Api.Tests;
 
-[Collection("Api")]
-public class HealthEndpointsTests
+public class HealthEndpointsTests(ApiTestFixture fixture, ITestOutputHelper output) : TestClass<ApiTestFixture>(fixture, output)
 {
-    private readonly ApiWebApplicationFactory _factory;
-
-    public HealthEndpointsTests(ApiWebApplicationFactory factory)
-    {
-        _factory = factory;
-    }
-
-    private HttpClient CreateClient() => _factory.CreateClient();
-
     [Fact]
     public async Task GetHealth_ReturnsOkWithStatus()
     {
         // Act
-        var response = await CreateClient().GetAsync("/health");
+        var response = await Fixture.Client.GetAsync("/health");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -35,7 +27,7 @@ public class HealthEndpointsTests
     public async Task GetHealthReady_ReturnsOkWithReadyStatus()
     {
         // Act
-        var response = await CreateClient().GetAsync("/health/ready");
+        var response = await Fixture.Client.GetAsync("/health/ready");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

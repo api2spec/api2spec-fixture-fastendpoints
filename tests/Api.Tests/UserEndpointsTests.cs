@@ -1,29 +1,21 @@
 using System.Net;
 using System.Net.Http.Json;
+using FastEndpoints.Testing;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Api.Tests;
 
-[Collection("Api")]
-public class UserEndpointsTests
+public class UserEndpointsTests(ApiTestFixture fixture, ITestOutputHelper output) : TestClass<ApiTestFixture>(fixture, output)
 {
-    private readonly ApiWebApplicationFactory _factory;
-
-    public UserEndpointsTests(ApiWebApplicationFactory factory)
-    {
-        _factory = factory;
-    }
-
-    private HttpClient CreateClient() => _factory.CreateClient();
-
     #region GET /users
 
     [Fact]
     public async Task ListUsers_ReturnsOkWithUserList()
     {
         // Act
-        var response = await CreateClient().GetAsync("/users");
+        var response = await Fixture.Client.GetAsync("/users");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -42,7 +34,7 @@ public class UserEndpointsTests
     public async Task GetUser_WhenUserExists_ReturnsOkWithUser()
     {
         // Act
-        var response = await CreateClient().GetAsync("/users/1");
+        var response = await Fixture.Client.GetAsync("/users/1");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -57,7 +49,7 @@ public class UserEndpointsTests
     public async Task GetUser_WhenUserNotFound_Returns404()
     {
         // Act
-        var response = await CreateClient().GetAsync("/users/999");
+        var response = await Fixture.Client.GetAsync("/users/999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -74,7 +66,7 @@ public class UserEndpointsTests
         var newUser = new { Name = "Alice", Email = "alice@example.com" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/users", newUser);
+        var response = await Fixture.Client.PostAsJsonAsync("/users", newUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -92,7 +84,7 @@ public class UserEndpointsTests
         var invalidUser = new { Name = "", Email = "test@example.com" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/users", invalidUser);
+        var response = await Fixture.Client.PostAsJsonAsync("/users", invalidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -105,7 +97,7 @@ public class UserEndpointsTests
         var invalidUser = new { Name = "Test User", Email = "not-an-email" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/users", invalidUser);
+        var response = await Fixture.Client.PostAsJsonAsync("/users", invalidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -118,7 +110,7 @@ public class UserEndpointsTests
         var invalidUser = new { Name = "Test User", Email = "" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/users", invalidUser);
+        var response = await Fixture.Client.PostAsJsonAsync("/users", invalidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -131,7 +123,7 @@ public class UserEndpointsTests
         var invalidUser = new { Name = "A", Email = "test@example.com" };
 
         // Act
-        var response = await CreateClient().PostAsJsonAsync("/users", invalidUser);
+        var response = await Fixture.Client.PostAsJsonAsync("/users", invalidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -148,7 +140,7 @@ public class UserEndpointsTests
         var updatedUser = new { Name = "Updated Name", Email = "updated@example.com" };
 
         // Act
-        var response = await CreateClient().PutAsJsonAsync("/users/1", updatedUser);
+        var response = await Fixture.Client.PutAsJsonAsync("/users/1", updatedUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -166,7 +158,7 @@ public class UserEndpointsTests
         var updatedUser = new { Name = "Updated Name", Email = "updated@example.com" };
 
         // Act
-        var response = await CreateClient().PutAsJsonAsync("/users/999", updatedUser);
+        var response = await Fixture.Client.PutAsJsonAsync("/users/999", updatedUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -179,7 +171,7 @@ public class UserEndpointsTests
         var invalidUser = new { Name = "", Email = "invalid" };
 
         // Act
-        var response = await CreateClient().PutAsJsonAsync("/users/1", invalidUser);
+        var response = await Fixture.Client.PutAsJsonAsync("/users/1", invalidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -193,7 +185,7 @@ public class UserEndpointsTests
     public async Task DeleteUser_WhenUserExists_Returns204()
     {
         // Act
-        var response = await CreateClient().DeleteAsync("/users/1");
+        var response = await Fixture.Client.DeleteAsync("/users/1");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -203,7 +195,7 @@ public class UserEndpointsTests
     public async Task DeleteUser_WhenUserNotFound_Returns404()
     {
         // Act
-        var response = await CreateClient().DeleteAsync("/users/999");
+        var response = await Fixture.Client.DeleteAsync("/users/999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
